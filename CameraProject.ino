@@ -1,4 +1,95 @@
 #include <Arduino.h>
+
+// Define needed constants
+#define LIGHT_METER_PIN		A4
+#define SELECT_BUTTPN_PIN	11
+#define BACK_BUTTON_PIN		A5
+#define UP_BUTTON_PIN		12
+#define DOWN_BUTTON_PIN		13
+
+// Define global variables
+uint16_t ISO;
+uint8_t EC;
+
+
+// Define program functions
+float readLightMeter()
+{
+	float lux;
+
+
+	return lux;
+}
+
+float calcEV100()
+{
+	float EV100;
+	return EV100;
+}
+
+float calcShutterSpeed()
+{
+
+}
+
+void setup()
+{
+	  pinMode(A0,OUTPUT);
+	  pinMode(A1,OUTPUT);
+	  pinMode(A2,OUTPUT);
+	  pinMode(A3,OUTPUT);
+	  pinMode(2,OUTPUT);
+	  pinMode(3,OUTPUT);
+	  pinMode(4,OUTPUT);
+	  pinMode(5,OUTPUT);
+	  pinMode(6,OUTPUT);
+	  pinMode(7,OUTPUT);
+	  pinMode(8,OUTPUT);
+	  pinMode(9,OUTPUT);
+	  pinMode(10,OUTPUT);
+	  pinMode(LIGHT_METER_PIN,INPUT);
+}
+
+void loop()
+{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
   This program demonstrates the capabilities of the Axiris IV-3 Arduino Shield.
@@ -21,10 +112,10 @@
         --- . pin 9
        pin 5
 */
-
+/*
 static  byte  digit_seg_data[10*7] PROGMEM =
 {
-/* pin    2     3     4     5     6     7     8  */
+// pin    2     3     4     5     6     7     8
         HIGH, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW,
          LOW, HIGH, HIGH,  LOW,  LOW,  LOW,  LOW,
         HIGH, HIGH,  LOW, HIGH, HIGH,  LOW, HIGH,
@@ -119,20 +210,6 @@ void  step_led_seq (void)
 
 void setup()
 {
-  pinMode(A0,OUTPUT);
-  pinMode(A1,OUTPUT);
-  pinMode(A2,OUTPUT);
-  pinMode(A3,OUTPUT);
-  pinMode(2,OUTPUT);
-  pinMode(3,OUTPUT);
-  pinMode(4,OUTPUT);
-  pinMode(5,OUTPUT);
-  pinMode(6,OUTPUT);
-  pinMode(7,OUTPUT);
-  pinMode(8,OUTPUT);
-  pinMode(9,OUTPUT);
-  pinMode(10,OUTPUT);
-
   step_led_seq();
 }
 
@@ -224,4 +301,4 @@ void loop()
   // Delay 2 ms => at most 500 cycles/second
   delay(2);
 }
-
+*/
