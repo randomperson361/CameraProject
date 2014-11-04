@@ -11,14 +11,17 @@
 uint16_t ISO;
 uint8_t EC;
 
-
 // Define program functions
-float readLightMeter()
+float RawToLux(int raw)
 {
-	float lux;
+	float logLux = raw * 5.0 / 1024;
+	return pow(10, logLux);
+}
 
-
-	return lux;
+float readLightMeter()					// set up for GA1A1S202WP, buy from adafruit
+{
+	int rawValue = analogRead(LIGHT_METER_PIN);
+	return RawToLux(rawValue);
 }
 
 float calcEV100()
@@ -34,6 +37,7 @@ float calcShutterSpeed()
 
 void setup()
 {
+	  analogReference(EXTERNAL);		// for light sensor, wire 3.3v to AREF, this must be called so that 3.3v is not shorted to 5v
 	  pinMode(A0,OUTPUT);
 	  pinMode(A1,OUTPUT);
 	  pinMode(A2,OUTPUT);
