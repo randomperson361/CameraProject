@@ -1,7 +1,7 @@
 //This is a automatic generated file
 //Please do not modify this file
 //If you touch this file your change will be overwritten during the next build
-//This file has been generated on 2014-11-04 15:28:58
+//This file has been generated on 2014-11-04 17:08:26
 
 #include "Arduino.h"
 #include <Arduino.h>
@@ -12,6 +12,9 @@ float calcEVx(float EV100)					 ;
 float calcExposureTime(float EV) ;
 uint8_t calcSSIndex(float exposureTime) ;
 void checkButtons() ;
+void updateNextTube() ;
+void serialShowTubes() ;
+void initiatePins() ;
 void setup() ;
 void loop() ;
 
