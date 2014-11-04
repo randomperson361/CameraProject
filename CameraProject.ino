@@ -2,14 +2,16 @@
 
 // Define needed constants
 #define LIGHT_METER_PIN		A4
-#define SELECT_BUTTPN_PIN	11
+#define SELECT_BUTTON_PIN	11
 #define BACK_BUTTON_PIN		A5
 #define UP_BUTTON_PIN		12
 #define DOWN_BUTTON_PIN		13
+#define SHUTTER_BUTTON_PIN	0
 
 // Define global variables
 uint16_t ISO;
 uint8_t EC;
+uint16_t possibleISOs[24] = {20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000, 1250, 1600, 2000, 2500, 3200, 6400};
 
 // Define program functions
 float RawToLux(int raw)
@@ -29,7 +31,17 @@ float calcEV100(float lux)				// calculates the EV at ISO 100 when given a lux v
 	return 1.4427*log(lux)-1.3219;
 }
 
-float calcShutterSpeed()
+float calcEVx(float EV100)					// adjusts EV100 for correct ISO speed and exposure compensation
+{
+	return EV100 + (log(ISO/100))/(log(2)) - EC;
+}
+
+float calcExposureTime()
+{
+
+}
+
+void checkButtons();
 {
 
 }
@@ -51,47 +63,17 @@ void setup()
 	  pinMode(9,OUTPUT);
 	  pinMode(10,OUTPUT);
 	  pinMode(LIGHT_METER_PIN,INPUT);
+	  pinMode(SELECT_BUTTON_PIN,INPUT);
+	  pinMode(BACK_BUTTON_PIN,INPUT);
+	  pinMode(UP_BUTTON_PIN,INPUT);
+	  pinMode(DOWN_BUTTON_PIN,INPUT);
+	  pinMode(SHUTTER_BUTTON_PIN,INPUT);
 }
 
 void loop()
 {
-
+	checkButtons();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*
 
