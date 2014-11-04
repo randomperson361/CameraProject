@@ -24,10 +24,9 @@ float readLightMeter()					// set up for GA1A1S202WP, buy from adafruit
 	return RawToLux(rawValue);
 }
 
-float calcEV100()
+float calcEV100(float lux)				// calculates the EV at ISO 100 when given a lux value
 {
-	float EV100;
-	return EV100;
+	return 1.4427*log(lux)-1.3219;
 }
 
 float calcShutterSpeed()
