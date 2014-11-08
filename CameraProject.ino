@@ -142,7 +142,7 @@ void updateNextTube()
 	currentTube %= 4;									// roll over if needed
 
 	digit = tubeData[currentTube].digit;
-	digit_seg_p = tubeChar + 7*digit;					// TODO: i think this line got fucked up
+	//digit_seg_p = tubeChar + 7*digit;					// TODO: i think this line got fucked up
 	for (pin = 2; pin < 9; pin++, digit_seg_p++) 		// light needed segments
 	{
 		digitalWrite(pin,pgm_read_byte(digit_seg_p));
@@ -159,42 +159,44 @@ void serialShowTubes()
 
 void initiatePins()
 {
-	  pinMode(A0,OUTPUT);
-	  pinMode(A1,OUTPUT);
-	  pinMode(A2,OUTPUT);
-	  pinMode(A3,OUTPUT);
-	  pinMode(2,OUTPUT);
-	  pinMode(3,OUTPUT);
-	  pinMode(4,OUTPUT);
-	  pinMode(5,OUTPUT);
-	  pinMode(6,OUTPUT);
-	  pinMode(7,OUTPUT);
-	  pinMode(8,OUTPUT);
-	  pinMode(9,OUTPUT);
-	  pinMode(10,OUTPUT);
-	  pinMode(LIGHT_METER_PIN,INPUT_PULLUP);
-	  pinMode(SELECT_BUTTON_PIN,INPUT_PULLUP);
-	  pinMode(BACK_BUTTON_PIN,INPUT_PULLUP);
-	  pinMode(UP_BUTTON_PIN,INPUT_PULLUP);
-	  pinMode(DOWN_BUTTON_PIN,INPUT_PULLUP);
-	  pinMode(SHUTTER_BUTTON_PIN,INPUT_PULLUP);
 	  pinMode(SHUTTER_CONTROL_PIN,OUTPUT);
+	  pinMode(8,INPUT);
 }
 
 void setup()
 {
-	analogReference(EXTERNAL);		// for light sensor, wire 3.3v to AREF, this must be called so that 3.3v is not shorted to 5v
+	//analogReference(EXTERNAL);		// for light sensor, wire 3.3v to AREF, this must be called so that 3.3v is not shorted to 5v
 	initiatePins();
-	Serial.begin(9600);
+	Serial.begin(115200);
 }
 
 void loop()
 {
-	checkButtons();
+	digitalWrite(SHUTTER_CONTROL_PIN,HIGH);
+	unsigned long topen = micros();
+	while(digitalRead(8)==0);
+	while(digitalRead(8)==1);
+	unsigned long actualopen = micros();
+	Serial.print("Opening Time: ");
+	Serial.println(actualopen-topen);
+	delay(500);
+	digitalWrite(SHUTTER_CONTROL_PIN,LOW);
+	unsigned long tclose = micros();
+	while(digitalRead(8)==0);
+	while(digitalRead(8)==1);
+	unsigned long actualclose = micros();
+	Serial.print("Closing Time: ");
+	Serial.println(actualclose-tclose);
+	Serial.print("Full Open Time: ");
+	Serial.println((tclose-actualopen)/1000);
+	Serial.print("Partial Open Time: ");
+	Serial.println((actualclose-topen)/1000);
+	Serial.println("\n");
+	//checkButtons();
 
-	serialShowTubes();	// enable this for debugging
+	//serialShowTubes();	// enable this for debugging
 	//updateNextTube();	 // enable this when tubes are actuall connected
-	delay(2);		// Delay 2 ms => at most 500 cycles/second
+	delay(1000);		// Delay 2 ms => at most 500 cycles/second
 }
 
 // testing code
