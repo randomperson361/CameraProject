@@ -10,6 +10,7 @@
 #define SHUTTER_CONTROL_PIN 13
 
 // Define needed constants
+#define DEBOUNCE_MS 		50
 #define F_STOP				11.375			// f/ of camera 182mm FL / 16mm aperture
 #define SS_ARRAY_SIZE		46
 #define TUBE_OFF			10
@@ -18,6 +19,7 @@
 #define TUBE_v				13
 #define DOT_PIN				9
 #define LED_PIN				10
+
 
 // Define tube stuff
 /*
@@ -128,7 +130,10 @@ uint8_t calcSSIndex(float exposureTime)
 
 void checkButtons()
 {
-
+	if (!digitalRead(UP_BUTTON_PIN) || !digitalRead(DOWN_BUTTON_PIN) || !digitalRead(SELECT_BUTTON_PIN) || !digitalRead(BACK_BUTTON_PIN) || !digitalRead(SHUTTER_BUTTON_PIN))
+	{
+		delay(DEBOUNCE_MS);
+	}
 }
 
 void updateNextTube()
