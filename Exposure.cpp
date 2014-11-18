@@ -12,13 +12,13 @@ const uint16_t Exposure::possibleISO[24] = {20, 25, 32, 40, 50, 64, 80, 100, 125
 const float Exposure::possibleSS[46] = {0.001, 0.00125, 0.0015625, 0.002, 0.0025, 0.003125, 0.004, 0.005, 0.00625, 0.008, 0.01, 0.0125, 0.01666667, 0.02, 0.025, 0.0333333, 0.04, 0.05, 0.0769231, 0.1, 0.125, 0.1666667, 0.2, 0.25, 0.3333333, 0.4, 0.5, 0.625, 0.769231, 1, 1.3, 1.6, 2, 2.5, 3, 4, 5, 6, 8, 10, 13, 15, 20, 25, 30, 60};
 const int Exposure::displaySS[46] = {-10000, -8000, -6400, -5000, -4000, -3200, -2500, -2000, -1600, -1250, -1000, -800, -600, -500, -400, -300, -250, -200, -130, -100, -80, -60, -50, -40, -30, -25, -20, -16, -13, 10, 13, 16, 20, 25, 30, 40, 50, 60, 80, 100, 130, 150, 200, 250, 300, 600};  // negative numbers indicate reciprocals, divide numbers by 10 to display actual value
 
-Exposure::Exposure(int pin)
+Exposure::Exposure(int pin, float fstop, uint16_t iso, uint8_t ec)
 {
 	lightMeterPin = pin;
-	ISO = 100;
-	EC = 0;
-	Expo = 0;
-	fStop = 11.375;
+	ISO = iso;
+	EC =ec;
+	fStop = fstop;
+	updateExposure();
 }
 
 Exposure::~Exposure()
@@ -73,12 +73,12 @@ uint8_t Exposure::calcSSIndex(float exposureTime)
 
 void Exposure::updateExposure()
 {
-	uint16_t l = readLightMeter();
-	float EV100 = calcEV100((float)l);
-	float EVx = calcEVx(EV100);
+	lux = readLightMeter();
+	EV100 = calcEV100((float)lux);
+	EVx = calcEVx(EV100);
 	Expo = calcExposureTime(EVx);
-	float SS = possibleSS[calcSSIndex(Expo)];
-	int rawDispSS = displaySS[calcSSIndex(Expo)];
+	SS = possibleSS[calcSSIndex(Expo)];
+	rawDispSS = displaySS[calcSSIndex(Expo)];
 	if (rawDispSS < 0)
 	{
 		Serial.print("1/");

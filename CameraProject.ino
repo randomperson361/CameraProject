@@ -22,6 +22,9 @@
 #define TUBE_C				12
 #define TUBE_v				13
 
+// Define needed constants
+#define F_STOP				11.375		// 182mm fl / 16mm objective
+
 // Define tube stuff
 /*
   Notes:
@@ -76,7 +79,7 @@ static TUBE tubeData[4] =
 
 // Define global variables
 static byte currentTube = 3;    // 0..3
-Exposure ExpoData(LIGHT_METER_PIN);
+Exposure ExpoData(LIGHT_METER_PIN,F_STOP);
 
 void checkButtons()
 {
