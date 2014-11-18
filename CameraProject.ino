@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "Exposure.h"
 
 // Define pins
 #define LIGHT_METER_PIN		A4
@@ -10,9 +11,6 @@
 #define SHUTTER_CONTROL_PIN 13
 #define DOT_PIN				9
 #define LED_PIN				10
-
-// Define needed constants
-#define F_STOP				11.375			// f/ of camera 182mm FL / 16mm aperture
 
 // Define tube letters
 #define TUBE_OFF			10
@@ -78,6 +76,7 @@ static TUBE tubeData[4] =
 
 // Define global variables
 static byte currentTube = 3;    // 0..3
+Exposure ExpoData(LIGHT_METER_PIN);
 
 void checkButtons()
 {
@@ -139,6 +138,7 @@ void setup()
 void loop()
 {
 	checkButtons();
+	ExpoData.updateExposure();
 	updateNextTube();	 			// enable this when tubes are actuall connected
 	delay(2);			 			// Delay 2 ms => at most 500 cycles/second
 }
