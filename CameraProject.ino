@@ -24,6 +24,11 @@ void checkButtons()
 
 }
 
+void updateDisplay()
+{
+	Tubes.updateNextTube();
+}
+
 void initiatePins()
 {
 	  pinMode(A0,OUTPUT);
@@ -52,12 +57,13 @@ void setup()
 {
 	analogReference(EXTERNAL);		// TODO: for light sensor, wire 3.3v to AREF, this must be called so that 3.3v is not shorted to 5v
 	initiatePins();
+	Timer1.initialize(5000);
+	Timer1.attachInterrupt(updateDisplay);
 }
 
 void loop()
 {
 	checkButtons();
 	ExpoData.updateExposure();
-	Tubes.updateNextTube();
 	delay(2);			 			// Delay 2 ms => at most 500 cycles/second
 }
