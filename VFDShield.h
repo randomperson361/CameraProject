@@ -14,7 +14,7 @@
 class VFDShield
 {
 private:
-	uint8_t currentTube;    // 0..3
+	volatile uint8_t currentTube;    // 0..3, must be volatile in case updateNextTube is called by interrupt
 	static const uint8_t segData[30];
 
 	uint8_t getSegDataIndex (uint8_t character);
@@ -28,6 +28,7 @@ public:
 	uint8_t led[4];			// HIGH or LOw
 
 	void updateNextTube();
+	// TODO: add tube update interrupt code into this class rather than being external
 };
 
 #endif /* VFDSHIELD_H_ */

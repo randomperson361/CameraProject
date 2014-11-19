@@ -57,7 +57,7 @@ void setup()
 {
 	analogReference(EXTERNAL);		// TODO: for light sensor, wire 3.3v to AREF, this must be called so that 3.3v is not shorted to 5v
 	initiatePins();
-	Timer1.initialize(5000);
+	Timer1.initialize(5000);		// 5000us = 5ms between each run, this delay can't be less than 2ms
 	Timer1.attachInterrupt(updateDisplay);
 }
 
@@ -65,5 +65,4 @@ void loop()
 {
 	checkButtons();
 	ExpoData.updateExposure();
-	delay(2);			 			// Delay 2 ms => at most 500 cycles/second
 }
