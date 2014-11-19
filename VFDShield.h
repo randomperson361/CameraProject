@@ -5,24 +5,6 @@
  *      Author: Andrew
  */
 
-/*
-  Notes:
-  * Macros HIGH and LOW are always passed as arguments of type byte (uint8_t).
-  * Pins 2..9 are connected to the segments and dots of the tubes.
-  * Pins A0..A3 are connected to the grids of the tubes.
-
-       pin 2
-        ---
- pin 7 |   | pin 3
-       |   |
- pin 8  ---
-       |   | pin 4
- pin 6 |   |
-        --- . pin 9
-       pin 5
-*/
-
-
 #ifndef VFDSHIELD_H_
 #define VFDSHIELD_H_
 
@@ -33,9 +15,9 @@ class VFDShield
 {
 private:
 	uint8_t currentTube;    // 0..3
-	static const uint8_t segData[];
+	static const uint8_t segData[30];
 
-	uint8_t getSegData (uint8_t character, uint8_t seg);
+	uint8_t getSegDataIndex (uint8_t character);
 
 public:
 	VFDShield();
