@@ -24,7 +24,7 @@
        pin 5
 */
 
-const uint8_t VFDShield::segData[30]  =
+const uint8_t VFDShield::segData[30]  =		// stores segment data for the tube in a single byte, first bit is unused, bits 1-7 correspond to pins 2-8
 {
 		0b01111110,			// 0, o, O
 		0b00110000,			// 1, i, I
@@ -215,7 +215,7 @@ void VFDShield::updateNextTube()
 	{
 		digitalWrite(pin,((segData[getSegDataIndex(character[currentTube])]>>(8-pin))&1));		// write correct segments for character
 	}
-	digitalWrite(DOT_PIN,dot[currentTube]); 	// turn dot on or off
-	digitalWrite(LED_PIN,led[currentTube]);	// turn the led on of off
+	digitalWrite(DOT_PIN,dot[currentTube]); 			// turn dot on or off
+	digitalWrite(LED_PIN,led[currentTube]);				// turn the led on of off
 	digitalWrite(A0+currentTube,HIGH);					// enable the current tube
 }
