@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "Exposure.h"
 #include "VFDShield.h"
+#include "TimerOne.h"
 
 // Define pins
 #define LIGHT_METER_PIN		A4
