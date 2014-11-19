@@ -63,7 +63,7 @@ VFDShield::VFDShield()
 	currentTube = 0;
 	for (int i = 0; i<4; i++)
 	{
-		digit[i] = ' ';
+		character[i] = ' ';
 		dot[i] = LOW;
 		led[i] = LOW;
 	}
@@ -213,7 +213,7 @@ void VFDShield::updateNextTube()
 	currentTube %= 4;									// roll over if needed
 	for (uint8_t pin = 2; pin < 9; pin++) 				// light needed segments
 	{
-		digitalWrite(pin,((segData[getSegDataIndex(digit[currentTube])]>>(8-pin))&1));		// write correct segments for character
+		digitalWrite(pin,((segData[getSegDataIndex(character[currentTube])]>>(8-pin))&1));		// write correct segments for character
 	}
 	digitalWrite(DOT_PIN,dot[currentTube]); 	// turn dot on or off
 	digitalWrite(LED_PIN,led[currentTube]);	// turn the led on of off

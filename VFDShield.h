@@ -23,7 +23,7 @@ public:
 	VFDShield();
 	virtual ~VFDShield();
 
-	uint8_t digit[4];       // 0..9, or letter macros
+	uint8_t character[4];       // 0..9, or letter macros
 	uint8_t dot[4];         // HIGH or LOW
 	uint8_t led[4];			// HIGH or LOw
 
