@@ -51,7 +51,6 @@ void setup()
 {
 	analogReference(EXTERNAL);		// TODO: for light sensor, wire 3.3v to AREF, this must be called so that 3.3v is not shorted to 5v
 	initiatePins();
-	Serial.begin(9600);
 }
 
 void loop()
