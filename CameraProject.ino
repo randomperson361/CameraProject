@@ -19,9 +19,18 @@
 Exposure ExpoData(LIGHT_METER_PIN,F_STOP);
 VFDShield Tubes;
 
-void checkButtons()
+void tubeTest()
 {
-
+	uint8_t testStr[] = "0123456789 abcdefghijklmnopqrstuvwxyz ";
+	uint8_t strLen = 38;
+	for (int i = 0; i<strLen-3; i++)
+	{
+		Tubes.character[0] = testStr[i];
+		Tubes.character[1] = testStr[i+1];
+		Tubes.character[2] = testStr[i+2];
+		Tubes.character[3] = testStr[i+3];
+		delay(500);
+	}
 }
 
 void updateDisplay()
@@ -63,6 +72,6 @@ void setup()
 
 void loop()
 {
-	checkButtons();
-	ExpoData.updateExposure();
+	tubeTest();
+	//ExpoData.updateExposure();
 }
