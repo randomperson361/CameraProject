@@ -15,13 +15,21 @@
 // Define needed constants
 #define F_STOP				11.375		// 182mm fl / 16mm objective
 #define DEBOUNCE_MS			20
+#define NUM_MENU_ITEMS		4
+#define NUM_ISO_VALUES		24
+#define DEFAULT_ISO_INDEX	7
+
+// Define enums to make life easier
+enum menuIdentifier {ISO, ExposureCompensation, ShutterSpeed, ExposureValue};
+
+// Define const lists
+const uint8_t menuLabels[NUM_MENU_ITEMS][5] = {" ISO", " EC ", " SS ", " EV "};
+const uint16_t possibleISO[NUM_ISO_VALUES] = {20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000, 1250, 1600, 2000, 2500, 3200, 6400};
 
 // Define global variables
-Exposure ExpoData(LIGHT_METER_PIN,F_STOP);
+Exposure ExpoData(LIGHT_METER_PIN,F_STOP,possibleISO[DEFAULT_ISO_INDEX]);
 VFDShield Tubes;
-uint8_t menuLevel, menuPos;
-static const uint8_t numMenuItems = 4;
-uint8_t menuLabels[4][5] = {" ISO", " EC ", " SS ", " EV "};
+uint8_t menuLevel, menuPos, ISOIndex;
 
 void checkButtons()
 {
@@ -39,19 +47,20 @@ void checkButtons()
 		else if (!digitalRead(UP_BUTTON_PIN))
 		{
 			menuPos++;
-			menuPos %= numMenuItems;
+			menuPos %= NUM_MENU_ITEMS;
 		}
 		else if (!digitalRead(DOWN_BUTTON_PIN))
 		{
 			if (menuPos == 0)
 			{
-				menuPos == numMenuItems-1;
+				menuPos = NUM_MENU_ITEMS-1;
 			}
 			else
 			{
 				menuPos--;
 			}
 		}
+		// TODO: add handling for up and down buttons in menu level 1
 		updateDisplay();
 	}
 }
@@ -69,16 +78,16 @@ void updateDisplay()
 	{
 		switch (menuPos)
 		{
-		case 0:
+		case ISO:
+			Tubes.display(possibleISO[ISOIndex]);
+			break;
+		case ExposureCompensation:
 
 			break;
-		case 1:
+		case ShutterSpeed:
 
 			break;
-		case 2:
-
-			break;
-		case 3:
+		case ExposureValue:
 
 			break;
 		}
@@ -120,6 +129,7 @@ void setup()
 	initiatePins();
 	menuLevel = 0;
 	menuPos = 0;
+	ISOIndex = DEFAULT_ISO_INDEX;
 	Timer1.initialize(5000);		// 5000us = 5ms between each run, this delay can't be less than 2ms
 	Timer1.attachInterrupt(updateTubes);
 }

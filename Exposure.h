@@ -17,7 +17,6 @@ private:
 	float SS;
 	int rawDispSS;
 
-	static const uint16_t possibleISO[24];
 	static const float possibleSS[46];
 	static const int displaySS[46];
 	uint8_t lightMeterPin;

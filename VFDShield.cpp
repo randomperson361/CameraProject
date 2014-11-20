@@ -206,6 +206,20 @@ uint8_t VFDShield::getSegDataIndex(uint8_t character)
 	return index;
 }
 
+void VFDShield::display(uint16_t num)
+{
+	// TODO: this could be written more efficiently as a loop
+	uint8_t thousands, hundreds, tens, ones;
+	thousands = num/1000;
+	hundreds = (num-(thousands*1000))/100;
+	tens = (num-(thousands*1000)-(hundreds*100))/10;
+	ones = (num-(thousands*1000)-(hundreds*100)-(tens*10));
+	character[0] = thousands;
+	character[1] = hundreds;
+	character[2] = tens;
+	character[3] = ones;
+}
+
 void VFDShield::updateNextTube()
 {
 	digitalWrite(A0+currentTube,LOW);					// turn off the old tube
