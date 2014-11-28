@@ -15,15 +15,15 @@
 // Define needed constants
 #define F_STOP				11.375		// 182mm fl / 16mm objective
 #define DEBOUNCE_MS			20
-#define NUM_MENU_ITEMS		4
+#define NUM_MENU_ITEMS		5
 #define NUM_ISO_VALUES		24
 #define DEFAULT_ISO_INDEX	7
 
 // Define enums to make life easier
-enum menuIdentifier {ISO, ExposureCompensation, ShutterSpeed, ExposureValue};
+enum menuIdentifier {ISO, ExposureCompensation, ShutterSpeed, ExposureValue, HoldOpen};
 
 // Define const lists
-const uint8_t menuLabels[NUM_MENU_ITEMS][5] = {" ISO", " EC ", " SS ", " EV "};
+const uint8_t menuLabels[NUM_MENU_ITEMS][5] = {" ISO", " EC ", " SS ", " EV ", "HOLD"};
 const uint16_t possibleISO[NUM_ISO_VALUES] = {20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000, 1250, 1600, 2000, 2500, 3200, 6400};
 
 // Define global variables
@@ -88,6 +88,9 @@ void updateDisplay()
 
 			break;
 		case ExposureValue:
+
+			break;
+		case HoldOpen:
 
 			break;
 		}
