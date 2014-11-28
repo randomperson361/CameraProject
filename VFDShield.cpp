@@ -82,41 +82,51 @@ uint8_t VFDShield::getSegDataIndex(uint8_t character)
 	case '0':
 	case 'o':
 	case 'O':
+	case 0:
 		index = 0;
 		break;
 	case '1':
 	case 'i':
 	case 'I':
+	case 1:
 		index = 1;
 		break;
 	case '2':
 	case 'z':
 	case 'Z':
+	case 2:
 		index = 2;
 		break;
 	case '3':
+	case 3:
 		index = 3;
 		break;
 	case '4':
+	case 4:
 		index = 4;
 		break;
 	case '5':
 	case 's':
 	case 'S':
+	case 5:
 		index = 5;
 		break;
 	case '6':
+	case 6:
 		index = 6;
 		break;
 	case '7':
+	case 7:
 		index = 7;
 		break;
 	case '8':
+	case 8:
 		index = 8;
 		break;
 	case '9':
 	case 'g':
 	case 'G':
+	case 9:
 		index = 9;
 		break;
 	case 'a':
@@ -204,6 +214,29 @@ uint8_t VFDShield::getSegDataIndex(uint8_t character)
 		index = 29;
 	}
 	return index;
+}
+
+void VFDShield::display(uint8_t arr[], uint8_t size)
+{
+	if (size <= 4)
+	{
+		for (int i=0; i<4-size; i++)
+		{
+			character[i] = ' ';
+		}
+		for (int j=4-size; j<size; j++)
+		{
+			character[j] = arr[j];
+		}
+	}
+	else if (size >= 4)
+	{
+		for (int i=0; i<4; i++)
+		{
+			character[i] = arr[i];
+		}
+	}
+	// TODO: add scrolling feature for strings longer than 4 characters
 }
 
 void VFDShield::display(uint16_t num)

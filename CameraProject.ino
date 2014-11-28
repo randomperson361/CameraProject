@@ -18,18 +18,21 @@
 #define NUM_MENU_ITEMS		5
 #define NUM_ISO_VALUES		24
 #define DEFAULT_ISO_INDEX	7
+#define EC_MAX_RANGE		5.0
+#define EC_STEP				(1./3.)
 
 // Define enums to make life easier
 enum menuIdentifier {ISO, ExposureCompensation, ShutterSpeed, ExposureValue, HoldOpen};
 
 // Define const lists
-const uint8_t menuLabels[NUM_MENU_ITEMS][5] = {" ISO", " EC ", " SS ", " EV ", "HOLD"};
+uint8_t menuLabels[NUM_MENU_ITEMS][5] = {" ISO", " EC ", " SS ", " EV ", "HOLD"};
 const uint16_t possibleISO[NUM_ISO_VALUES] = {20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000, 1250, 1600, 2000, 2500, 3200, 6400};
 
 // Define global variables
 Exposure ExpoData(LIGHT_METER_PIN,F_STOP,possibleISO[DEFAULT_ISO_INDEX]);
 VFDShield Tubes;
-uint8_t menuLevel, menuPos, ISOIndex;
+uint8_t menuLevel, menuPos, ISOIndex, holdOpenFlag;
+float ExposureComp;
 
 void checkButtons()
 {
@@ -46,35 +49,89 @@ void checkButtons()
 		}
 		else if (!digitalRead(UP_BUTTON_PIN))
 		{
-			menuPos++;
-			menuPos %= NUM_MENU_ITEMS;
+			if (menuLevel == 0)
+			{
+				menuPos++;
+				menuPos %= NUM_MENU_ITEMS;
+			}
+			else if (menuLevel == 1)
+			{
+				switch (menuPos)
+				{
+				case ISO:
+					ISOIndex++;
+					ISOIndex %= NUM_ISO_VALUES;
+					break;
+				case ExposureCompensation:
+					if (ExposureComp < EC_MAX_RANGE-.1)
+					{
+						ExposureComp += EC_STEP;
+					}
+					break;
+				case ShutterSpeed:
+					// in AV mode SS values can't be changed manually, do nothing
+					break;
+				case ExposureValue:
+					// just display Exposure value, nothing to change
+					break;
+				case HoldOpen:
+					holdOpenFlag = 1;
+					break;
+				}
+			}
 		}
 		else if (!digitalRead(DOWN_BUTTON_PIN))
 		{
-			if (menuPos == 0)
+			if (menuLevel == 0)
 			{
-				menuPos = NUM_MENU_ITEMS-1;
+				if (menuPos == 0)
+				{
+					menuPos = NUM_MENU_ITEMS-1;
+				}
+				else
+				{
+					menuPos--;
+				}
 			}
-			else
+			else if (menuLevel == 1)
 			{
-				menuPos--;
+				switch (menuPos)
+				{
+				case ISO:
+					if (ISOIndex > 0)
+					{
+						ISOIndex--;
+					}
+					break;
+				case ExposureCompensation:
+					if (ExposureComp > -EC_MAX_RANGE-.1)
+					{
+						ExposureComp -= EC_STEP;
+					}
+					break;
+				case ShutterSpeed:
+					// in AV mode SS values can't be changed manually, do nothing
+					break;
+				case ExposureValue:
+					// just display Exposure value, nothing to change
+					break;
+				case HoldOpen:
+					holdOpenFlag = 0;
+					break;
+				}
 			}
 		}
-		// TODO: add handling for up and down buttons in menu level 1
 		updateDisplay();
 	}
 }
 
 void updateDisplay()
 {
-	if (menuLevel == 0)
+	if (menuLevel == 0)			// top level of menu, display item names
 	{
-		for (int i = 0; i<4; i++)
-		{
-			Tubes.character[i] = menuLabels[menuPos][i];
-		}
+		Tubes.display(menuLabels[menuPos]);
 	}
-	else
+	else if (menuLevel == 1)	// bottom level of menu, display item values
 	{
 		switch (menuPos)
 		{
@@ -82,7 +139,7 @@ void updateDisplay()
 			Tubes.display(possibleISO[ISOIndex]);
 			break;
 		case ExposureCompensation:
-
+			Tubes.display(ExposureComp,2);
 			break;
 		case ShutterSpeed:
 
@@ -91,7 +148,14 @@ void updateDisplay()
 
 			break;
 		case HoldOpen:
+			if (holdOpenFlag == 0)
+			{
 
+			}
+			else if (holdOpenFlag == 1)
+			{
+
+			}
 			break;
 		}
 	}
@@ -133,6 +197,8 @@ void setup()
 	menuLevel = 0;
 	menuPos = 0;
 	ISOIndex = DEFAULT_ISO_INDEX;
+	ExposureComp = 0;
+	holdOpenFlag = 0;
 	Timer1.initialize(5000);		// 5000us = 5ms between each run, this delay can't be less than 2ms
 	Timer1.attachInterrupt(updateTubes);
 }
