@@ -209,15 +209,34 @@ uint8_t VFDShield::getSegDataIndex(uint8_t character)
 void VFDShield::display(uint16_t num)
 {
 	// TODO: this could be written more efficiently as a loop
-	uint8_t thousands, hundreds, tens, ones;
-	thousands = num/1000;
-	hundreds = (num-(thousands*1000))/100;
-	tens = (num-(thousands*1000)-(hundreds*100))/10;
-	ones = (num-(thousands*1000)-(hundreds*100)-(tens*10));
+	uint8_t tenthousands, thousands, hundreds, tens, ones;
+	tenthousands = num/10000;
+	thousands = (num-(tenthousands*10000))/1000;					// tenthousands are discarded
+	hundreds = (num-(tenthousands*10000)-(thousands*1000))/100;
+	tens = (num-(tenthousands*10000)-(thousands*1000)-(hundreds*100))/10;
+	ones = (num-(tenthousands*10000)-(thousands*1000)-(hundreds*100)-(tens*10));
 	character[0] = thousands;
 	character[1] = hundreds;
 	character[2] = tens;
 	character[3] = ones;
+}
+
+void VFDShield::display(float num, uint8_t decimals)
+{
+	if (decimals > 3)
+	{
+		decimals = 3;
+	}
+	uint16_t integerNum = num * pow(10,decimals);
+	display(integerNum);
+	for (int i = 0; i<4; i++)
+	{
+		dot[i] = LOW;
+	}
+	if (decimals > 0)
+	{
+		dot[decimals-1] = HIGH;
+	}
 }
 
 void VFDShield::updateNextTube()

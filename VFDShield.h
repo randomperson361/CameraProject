@@ -28,6 +28,7 @@ public:
 	uint8_t led[4];			// HIGH or LOw
 
 	void display (uint16_t num);
+	void display (float num, uint8_t decimals = 1);
 	void updateNextTube();
 	// TODO: add tube update interrupt code into this class rather than being external
 };
