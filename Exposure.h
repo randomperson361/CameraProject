@@ -8,17 +8,13 @@
 #ifndef EXPOSURE_H_
 #define EXPOSURE_H_
 
+#define NUM_SS_VALUES 42
+
 class Exposure
 {
 private:
-	uint16_t lux;
-	float EV100;
-	float EVx;
-	float SS;
-	int rawDispSS;
-
-	static const float possibleSS[46];
-	static const int displaySS[46];
+	static const float possibleSS[NUM_SS_VALUES];
+	static const int displaySS[NUM_SS_VALUES];
 	uint8_t lightMeterPin;
 	float RawToLux(int raw);
 	float readLightMeter();
@@ -30,11 +26,15 @@ private:
 public:
 	Exposure(int pin, float fstop = 8, uint16_t iso = 100, uint8_t ec = 0);
 	virtual ~Exposure();
-
 	uint16_t ISO;
 	float fStop;
 	uint8_t EC;
 	float Expo;
+	float EVx;
+	float EV100;
+	int rawDispSS;
+	uint16_t lux;
+	float SS;
 
 	void updateExposure();
 };

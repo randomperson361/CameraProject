@@ -1,13 +1,16 @@
 //This is a automatic generated file
 //Please do not modify this file
 //If you touch this file your change will be overwritten during the next build
-//This file has been generated on 2014-11-28 12:12:23
+//This file has been generated on 2014-12-02 12:57:45
 
 #include "Arduino.h"
 #include <Arduino.h>
 #include "Exposure.h"
 #include "VFDShield.h"
 #include "TimerOne.h"
+void openShutter() ;
+void closeShutter() ;
+void takePhoto (uint32_t SS) ;
 void checkButtons() ;
 void updateDisplay() ;
 void updateTubes() ;

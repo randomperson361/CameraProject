@@ -24,7 +24,7 @@
        pin 5
 */
 
-const uint8_t VFDShield::segData[30]  =		// stores segment data for the tube in a single byte, first bit is unused, bits 1-7 correspond to pins 2-8
+const uint8_t VFDShield::segData[32]  =		// stores segment data for the tube in a single byte, first bit is unused, bits 1-7 correspond to pins 2-8
 {
 		0b01111110,			// 0, o, O
 		0b00110000,			// 1, i, I
@@ -52,21 +52,18 @@ const uint8_t VFDShield::segData[30]  =		// stores segment data for the tube in 
 		0b00000101,			// r, R
 		0b00001111,			// t, T
 		0b00111110,			// u, U
-		0b00011100,			// v, V
+		0b00011100,			// v, V, <
 		0b00101010,			// w, W
 		0b00111011,			// y, Y
+		0b00000001,			// -
+		0b01100010,			// >
 		0b00000000			// space , default
 };
 
 VFDShield::VFDShield()
 {
 	currentTube = 0;
-	for (int i = 0; i<4; i++)
-	{
-		character[i] = ' ';
-		dot[i] = LOW;
-		led[i] = LOW;
-	}
+	clrAll();
 }
 
 VFDShield::~VFDShield()
@@ -199,6 +196,7 @@ uint8_t VFDShield::getSegDataIndex(uint8_t character)
 		break;
 	case 'v':
 	case 'V':
+	case '<':
 		index = 26;
 		break;
 	case 'w':
@@ -209,15 +207,49 @@ uint8_t VFDShield::getSegDataIndex(uint8_t character)
 	case 'Y':
 		index = 28;
 		break;
+	case '-':
+		index = 29;
+		break;
+	case '>':
+		index = 30;
+		break;
 	case ' ':
 	default:
-		index = 29;
+		index = 31;
 	}
 	return index;
 }
 
-void VFDShield::display(uint8_t arr[], uint8_t size)
+void VFDShield::clrNums()
 {
+	for (int i = 0; i<4; i++)
+	{
+		character[i] = ' ';
+		dot[i] = LOW;
+	}
+}
+
+void VFDShield::clrLEDs()
+{
+	LEDs(0);
+}
+
+void VFDShield::clrAll()
+{
+	clrNums();
+	clrLEDs();
+}
+
+void VFDShield::LEDs (uint8_t on)
+{
+	for (int i = 0; i<4; i++)
+	{
+		led[i] = on;
+	}
+}
+void VFDShield::display(const char *arr, uint8_t size)
+{
+	clrNums();
 	if (size <= 4)
 	{
 		for (int i=0; i<4-size; i++)
@@ -239,8 +271,9 @@ void VFDShield::display(uint8_t arr[], uint8_t size)
 	// TODO: add scrolling feature for strings longer than 4 characters
 }
 
-void VFDShield::display(uint16_t num)
+void VFDShield::display(const uint16_t num, uint8_t just)
 {
+	clrNums();
 	// TODO: this could be written more efficiently as a loop
 	uint8_t tenthousands, thousands, hundreds, tens, ones;
 	tenthousands = num/10000;
@@ -248,28 +281,72 @@ void VFDShield::display(uint16_t num)
 	hundreds = (num-(tenthousands*10000)-(thousands*1000))/100;
 	tens = (num-(tenthousands*10000)-(thousands*1000)-(hundreds*100))/10;
 	ones = (num-(tenthousands*10000)-(thousands*1000)-(hundreds*100)-(tens*10));
-	character[0] = thousands;
-	character[1] = hundreds;
-	character[2] = tens;
-	character[3] = ones;
+	if (just == 0)
+	{
+		character[0] = thousands;
+		character[1] = hundreds;
+		character[2] = tens;
+		character[3] = ones;
+		if (num<1000)
+		{
+			character[0] = ' ';
+			if (num<100)
+			{
+				character[1] = ' ';
+				if (num<10)
+					character[2] = ' ';
+			}
+		}
+	}
+	else
+	{
+		if (num>=1000)
+		{
+			character[0] = thousands;
+			character[1] = hundreds;
+			character[2] = tens;
+			character[3] = ones;
+		}
+		else if (num>=100)
+		{
+			character[0] = hundreds;
+			character[1] = tens;
+			character[2] = ones;
+		}
+		else if (num>=10)
+		{
+			character[0] = tens;
+			character[1] = ones;
+		}
+		else
+		{
+			character[0] = ones;
+		}
+	}
 }
 
-void VFDShield::display(float num, uint8_t decimals)
+void VFDShield::display(const float num, uint8_t decimals)
 {
+	clrNums();
 	if (decimals > 3)
 	{
 		decimals = 3;
 	}
-	uint16_t integerNum = num * pow(10,decimals);
-	display(integerNum);
-	for (int i = 0; i<4; i++)
+	if (decimals > 2 && num < 0)
 	{
-		dot[i] = LOW;
+		decimals = 2;
+	}
+	uint16_t integerNum = abs(num * pow(10,decimals));
+	display(integerNum);
+	if (num < 0)
+	{
+		character[0] = '-';
 	}
 	if (decimals > 0)
 	{
-		dot[decimals-1] = HIGH;
+		dot[3-decimals] = HIGH;
 	}
+	// TODO add scrolling to display bigger numbers
 }
 
 void VFDShield::updateNextTube()

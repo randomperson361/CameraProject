@@ -14,25 +14,56 @@
 
 // Define needed constants
 #define F_STOP				11.375		// 182mm fl / 16mm objective
-#define DEBOUNCE_MS			20
-#define NUM_MENU_ITEMS		5
+#define DEBOUNCE_MS			100
+#define EXP_UPDATE_DELAY	100
+#define NUM_MENU_ITEMS		6
 #define NUM_ISO_VALUES		24
+#define NUM_EC_VALUES		31
+#define NUM_DLY_VALUES		10
 #define DEFAULT_ISO_INDEX	7
+#define DEFAULT_EC_INDEX	15
+#define DEFAULT_DLY_INDEX	0
 #define EC_MAX_RANGE		5.0
 #define EC_STEP				(1./3.)
 
 // Define enums to make life easier
-enum menuIdentifier {ISO, ExposureCompensation, ShutterSpeed, ExposureValue, HoldOpen};
+enum menuIdentifier {ISO, ExposureCompensation, ShutterSpeed, ExposureValue, HoldOpen, ShutterDelay};
+enum dispJustification {RIGHT, LEFT};
 
 // Define const lists
-uint8_t menuLabels[NUM_MENU_ITEMS][5] = {" ISO", " EC ", " SS ", " EV ", "HOLD"};
+const char menuLabels[NUM_MENU_ITEMS][5] = {" ISO", " EC ", " SS ", " EV ", "HOLD", "DLAY"};
 const uint16_t possibleISO[NUM_ISO_VALUES] = {20, 25, 32, 40, 50, 64, 80, 100, 125, 160, 200, 250, 320, 400, 500, 640, 800, 1000, 1250, 1600, 2000, 2500, 3200, 6400};
+const float possibleEC[NUM_EC_VALUES]= {-5.00,-4.67,-4.33,-4.00,-3.67,-3.33,-3.00,-2.67,-2.33,-2.00,-1.67,-1.33,-1.00,-0.67,-0.33,0.00,0.33,0.67,1.00,1.33,1.67,2.00,2.33,2.67,3.00,3.33,3.67,4.00,4.33,4.67,5.00};
+const float possibleDly[NUM_DLY_VALUES] = {0.0, 0.25, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 20.0, 30.0};
+unsigned long lastExpUpdate;
 
 // Define global variables
 Exposure ExpoData(LIGHT_METER_PIN,F_STOP,possibleISO[DEFAULT_ISO_INDEX]);
 VFDShield Tubes;
-uint8_t menuLevel, menuPos, ISOIndex, holdOpenFlag;
-float ExposureComp;
+uint8_t menuLevel, menuPos, ISOIndex, ECIndex, DlyIndex, shutterOpenFlag;
+
+void openShutter()
+{
+	shutterOpenFlag = 1;
+	digitalWrite(SHUTTER_CONTROL_PIN,HIGH);
+}
+
+void closeShutter()
+{
+	shutterOpenFlag = 0;
+	digitalWrite(SHUTTER_CONTROL_PIN,LOW);
+}
+
+void takePhoto (uint32_t SS)
+{
+	noInterrupts();
+	delay(1000*possibleDly[DlyIndex]);
+	Tubes.clrAll();
+	openShutter();
+	delay(SS-17);
+	closeShutter();
+	interrupts();
+}
 
 void checkButtons()
 {
@@ -59,13 +90,15 @@ void checkButtons()
 				switch (menuPos)
 				{
 				case ISO:
-					ISOIndex++;
-					ISOIndex %= NUM_ISO_VALUES;
+					if (ISOIndex < NUM_ISO_VALUES-1)
+					{
+						ISOIndex++;
+					}
 					break;
 				case ExposureCompensation:
-					if (ExposureComp < EC_MAX_RANGE-.1)
+					if (ECIndex < NUM_EC_VALUES-1)
 					{
-						ExposureComp += EC_STEP;
+						ECIndex++;
 					}
 					break;
 				case ShutterSpeed:
@@ -75,7 +108,13 @@ void checkButtons()
 					// just display Exposure value, nothing to change
 					break;
 				case HoldOpen:
-					holdOpenFlag = 1;
+					openShutter();
+					break;
+				case ShutterDelay:
+					if (DlyIndex < NUM_DLY_VALUES-1)
+					{
+						DlyIndex++;
+					}
 					break;
 				}
 			}
@@ -104,9 +143,9 @@ void checkButtons()
 					}
 					break;
 				case ExposureCompensation:
-					if (ExposureComp > -EC_MAX_RANGE-.1)
+					if (ECIndex > 0)
 					{
-						ExposureComp -= EC_STEP;
+						ECIndex--;
 					}
 					break;
 				case ShutterSpeed:
@@ -116,12 +155,24 @@ void checkButtons()
 					// just display Exposure value, nothing to change
 					break;
 				case HoldOpen:
-					holdOpenFlag = 0;
+					closeShutter();
+					break;
+				case ShutterDelay:
+					if (DlyIndex > 0)
+					{
+						DlyIndex--;
+					}
 					break;
 				}
 			}
 		}
-		updateDisplay();
+		ExpoData.ISO = possibleISO[ISOIndex];
+		ExpoData.EC = possibleEC[ECIndex];
+	}
+	if (!digitalRead(SHUTTER_CONTROL_PIN))
+	{
+		takePhoto((uint32_t)ExpoData.SS*1000);
+		delay(1000);
 	}
 }
 
@@ -129,7 +180,7 @@ void updateDisplay()
 {
 	if (menuLevel == 0)			// top level of menu, display item names
 	{
-		Tubes.display(menuLabels[menuPos]);
+		Tubes.display(menuLabels[menuPos],4);
 	}
 	else if (menuLevel == 1)	// bottom level of menu, display item values
 	{
@@ -139,23 +190,45 @@ void updateDisplay()
 			Tubes.display(possibleISO[ISOIndex]);
 			break;
 		case ExposureCompensation:
-			Tubes.display(ExposureComp,2);
+			Tubes.display(possibleEC[ECIndex],2);
 			break;
 		case ShutterSpeed:
-
+			int rawSS;
+			rawSS = ExpoData.rawDispSS;
+			float flSS;
+			flSS = abs(rawSS)/10.0;
+			if (abs(rawSS)%10 != 0)			// number has a decimal
+			{
+				Tubes.display(flSS,1);
+			}
+			else
+			{
+				Tubes.display(flSS,0);
+			}
+			if (rawSS>=0)					// number is not a reciprocal
+			{
+				Tubes.character[0] = '>';
+			}
+			else
+			{
+				Tubes.character[0] = '<';
+			}
 			break;
 		case ExposureValue:
-
+			Tubes.display(ExpoData.EV100,2);
 			break;
 		case HoldOpen:
-			if (holdOpenFlag == 0)
+			if (shutterOpenFlag == 0)
 			{
-
+				Tubes.display("CLSD",4);
 			}
-			else if (holdOpenFlag == 1)
+			else if (shutterOpenFlag == 1)
 			{
-
+				Tubes.display("OPEN",4);
 			}
+			break;
+		case ShutterDelay:
+			Tubes.display(possibleDly[DlyIndex],2);
 			break;
 		}
 	}
@@ -168,6 +241,8 @@ void updateTubes()
 
 void initiatePins()
 {
+	  analogReference(EXTERNAL);
+	  pinMode(LIGHT_METER_PIN,INPUT);
 	  pinMode(A0,OUTPUT);
 	  pinMode(A1,OUTPUT);
 	  pinMode(A2,OUTPUT);
@@ -181,24 +256,25 @@ void initiatePins()
 	  pinMode(8,OUTPUT);
 	  pinMode(9,OUTPUT);
 	  pinMode(10,OUTPUT);
-	  pinMode(LIGHT_METER_PIN,INPUT_PULLUP);
 	  pinMode(SELECT_BUTTON_PIN,INPUT_PULLUP);
 	  pinMode(BACK_BUTTON_PIN,INPUT_PULLUP);
 	  pinMode(UP_BUTTON_PIN,INPUT_PULLUP);
 	  pinMode(DOWN_BUTTON_PIN,INPUT_PULLUP);
 	  pinMode(SHUTTER_BUTTON_PIN,INPUT_PULLUP);
 	  pinMode(SHUTTER_CONTROL_PIN,OUTPUT);
+	  closeShutter();
 }
 
 void setup()
 {
-	analogReference(EXTERNAL);		// TODO: for light sensor, wire 3.3v to AREF, this must be called so that 3.3v is not shorted to 5v
 	initiatePins();
 	menuLevel = 0;
 	menuPos = 0;
 	ISOIndex = DEFAULT_ISO_INDEX;
-	ExposureComp = 0;
-	holdOpenFlag = 0;
+	ECIndex = DEFAULT_EC_INDEX;
+	DlyIndex = DEFAULT_DLY_INDEX;
+	lastExpUpdate = 0;
+	Tubes.LEDs(1);
 	Timer1.initialize(5000);		// 5000us = 5ms between each run, this delay can't be less than 2ms
 	Timer1.attachInterrupt(updateTubes);
 }
@@ -206,5 +282,10 @@ void setup()
 void loop()
 {
 	checkButtons();
-	ExpoData.updateExposure();
+	if ((millis() - lastExpUpdate) > EXP_UPDATE_DELAY)
+	{
+		ExpoData.updateExposure();
+		updateDisplay();
+		lastExpUpdate = millis();
+	}
 }
