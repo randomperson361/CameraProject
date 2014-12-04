@@ -56,13 +56,14 @@ void closeShutter()
 
 void takePhoto (uint32_t SS)
 {
-	noInterrupts();
-	delay(1000*possibleDly[DlyIndex]);
 	Tubes.clrAll();
+	delay(1000*possibleDly[DlyIndex]+10);
+	//noInterrupts();
 	openShutter();
 	delay(SS-17);
 	closeShutter();
-	interrupts();
+	Tubes.LEDs(1);
+	//interrupts();
 }
 
 void checkButtons()
@@ -169,9 +170,9 @@ void checkButtons()
 		ExpoData.ISO = possibleISO[ISOIndex];
 		ExpoData.EC = possibleEC[ECIndex];
 	}
-	if (!digitalRead(SHUTTER_CONTROL_PIN))
+	if (!digitalRead(SHUTTER_BUTTON_PIN))
 	{
-		takePhoto((uint32_t)ExpoData.SS*1000);
+		takePhoto((uint32_t)(ExpoData.SS*1000));
 		delay(1000);
 	}
 }
