@@ -327,6 +327,7 @@ void VFDShield::display(const uint16_t num, uint8_t just)
 
 void VFDShield::display(const float num, uint8_t decimals)
 {
+	float dispNum = num;
 	clrNums();
 	if (decimals > 3)
 	{
@@ -336,7 +337,16 @@ void VFDShield::display(const float num, uint8_t decimals)
 	{
 		decimals = 2;
 	}
-	uint16_t integerNum = abs(num * pow(10,decimals));
+	// these two functions if statements round the number to the third decimal place to fix floating point truncation
+	if (num > 0)
+	{
+		dispNum += 0.0005;
+	}
+	else if (num < 0)
+	{
+		dispNum -= 0.0005;
+	}
+	uint16_t integerNum = abs(dispNum * pow(10,decimals));
 	display(integerNum);
 	if (num < 0)
 	{
