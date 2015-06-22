@@ -6,7 +6,6 @@
 // Define pins
 #define LIGHT_METER_PIN		A4
 #define SELECT_BUTTON_PIN	1
-#define BACK_BUTTON_PIN		A5
 #define UP_BUTTON_PIN		11
 #define DOWN_BUTTON_PIN		12
 #define SHUTTER_BUTTON_PIN	0
@@ -60,24 +59,25 @@ void takePhoto (uint32_t SS)
 	delay(1000*possibleDly[DlyIndex]+10);
 	//noInterrupts();
 	openShutter();
-	delay(SS-17);
+	delay(SS);
 	closeShutter();
 	Tubes.LEDs(1);
 	//interrupts();
 }
 
+void toggleMenuLevel()
+{
+	menuLevel = !menuLevel;
+}
+
 void checkButtons()
 {
-	if(!digitalRead(SELECT_BUTTON_PIN) || !digitalRead(BACK_BUTTON_PIN) || !digitalRead(UP_BUTTON_PIN) || !digitalRead(DOWN_BUTTON_PIN))
+	if(!digitalRead(SELECT_BUTTON_PIN) || !digitalRead(UP_BUTTON_PIN) || !digitalRead(DOWN_BUTTON_PIN))
 	{
 		delay(DEBOUNCE_MS);
 		if(!digitalRead(SELECT_BUTTON_PIN))
 		{
-			menuLevel = 1;
-		}
-		else if (!digitalRead(BACK_BUTTON_PIN))
-		{
-			menuLevel = 0;
+			toggleMenuLevel();
 		}
 		else if (!digitalRead(UP_BUTTON_PIN))
 		{
@@ -258,7 +258,6 @@ void initiatePins()
 	  pinMode(9,OUTPUT);
 	  pinMode(10,OUTPUT);
 	  pinMode(SELECT_BUTTON_PIN,INPUT_PULLUP);
-	  pinMode(BACK_BUTTON_PIN,INPUT_PULLUP);
 	  pinMode(UP_BUTTON_PIN,INPUT_PULLUP);
 	  pinMode(DOWN_BUTTON_PIN,INPUT_PULLUP);
 	  pinMode(SHUTTER_BUTTON_PIN,INPUT_PULLUP);
